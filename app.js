@@ -81,46 +81,61 @@ const menu = [
     desc: `Red bean paste dessert, serving with honey.`,
   },
 ];
-
-const menu = [
-  // ... (verdiğiniz menu dizisi)
-];
-
-// Kategori listesini oluşturma
-const categories = ['All', ...new Set(menu.map(item => item.category))];
-
-// Butonları yerleştirme
-const btnContainer = document.querySelector('.btn-container');
-btnContainer.innerHTML = categories
-    .map(category => {
-      return `<button class="btn btn-outline-dark btn-item" data-category="${category}">${category}</button>`;
-    })
-    .join('');
-
-// Butonların işlevselliği
-btnContainer.addEventListener('click', function (e) {
-  const category = e.target.dataset.category;
-  const menuCategory = (category === 'All') ? menu : menu.filter(menuItem => menuItem.category === category);
-  displayMenuItems(menuCategory);
+window.addEventListener("DOMContentLoaded", function () {
+  displayMenuItems(menu);
+  displayMenuButtons();
 });
 
-// Menü öğelerini yerleştirme
 function displayMenuItems(menuItems) {
-  let displayMenu = menuItems.map(item => {
-    return `<div class="menu-items col-lg-6 col-sm-12">
-                    <img src=${item.img} alt=${item.title} class="photo">
-                    <div class="menu-info">
-                      <div class="menu-title">
-                        <h4>${item.title}</h4>
-                        <h4 class="price">${item.price}</h4>
-                      </div>
-                      <div class="menu-text">${item.desc}</div>
-                    </div>
-                </div>`;
+  let displayMenu = menuItems.map(function (item) {
+    return `
+    <div class="col-md-4 menu-items">
+      <img src=${item.img} alt=${item.title} class="photo">
+      <div class="menu-info">
+        <div class="menu-title">
+          <h4>${item.title}</h4>
+          <h4 class="price">$${item.price}</h4>
+        </div>
+        <p class="menu-text">${item.desc}</p>
+      </div>
+    </div>`;
   });
-  document.querySelector('.section-center').innerHTML = displayMenu.join('');
+  displayMenu = displayMenu.join("");
+  document.querySelector(".section-center").innerHTML = displayMenu;
 }
 
-// Başlangıçta tüm menü öğelerini göster
-displayMenuItems(menu);
+function displayMenuButtons() {
+  const categories = menu.reduce(
+      function (values, item) {
+        if (!values.includes(item.category)) {
+          values.push(item.category);
+        }
+        return values;
+      },
+      ["All"]
+  );
 
+  document.querySelector(".btn-container").innerHTML = categories
+      .map(function (category) {
+        return `<button class="btn btn-outline-dark btn-item" data-id=${category}>${category}</button>`;
+      })
+      .join("");
+
+  const filterBtns = document.querySelectorAll(".btn-item");
+
+  filterBtns.forEach(function (btn) {
+    btn.addEventListener("click", function (e) {
+      const category = e.currentTarget.dataset.id;
+      const menuCategory = menu.filter(function (menuItem) {
+        if (menuItem.category === category) {
+          return menuItem;
+        }
+      });
+      if (category === "All") {
+        displayMenuItems(menu);
+      } else {
+        displayMenuItems(menuCategory);
+      }
+    });
+  });
+}
